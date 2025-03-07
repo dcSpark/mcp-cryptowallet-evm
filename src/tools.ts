@@ -7,7 +7,6 @@ import {
   getAddressHandler,
   getPublicKeyHandler,
   getPrivateKeyHandler,
-  getMnemonicHandler,
   getBalanceHandler,
   getChainIdHandler,
   getGasPriceHandler,
@@ -32,7 +31,8 @@ import {
   resolveNameHandler,
   getNetworkHandler,
   getBlockNumberHandler,
-  getFeeDataHandler
+  getFeeDataHandler,
+  createMnemonicPhraseHandler
 } from "./handlers/wallet.js";
 
 export const tools = [
@@ -60,6 +60,18 @@ export const tools = [
         provider: { type: "string", description: "Optional JSON RPC provider URL" }
       },
       required: ["privateKey"]
+    }
+  },
+  {
+    name: "wallet_create_mnemonic_phrase",
+    description: "Create a mnemonic phrase",
+    inputSchema: {
+      type: "object",
+      properties: {
+        length: { type: "number", description: "The length of the mnemonic phrase", enum: [12, 15, 18, 21, 24] },
+        locale: { type: "string", description: "Optional locale for the wordlist" }
+      },
+      required: ["length"]
     }
   },
   {
@@ -151,19 +163,6 @@ export const tools = [
       required: ["wallet"]
     }
   },
-  {
-    name: "wallet_get_mnemonic",
-    description: "Get the wallet mnemonic phrase (if available)",
-    inputSchema: {
-      type: "object",
-      properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
-        password: { type: "string", description: "The password to decrypt the wallet if it's encrypted" }
-      },
-      required: ["wallet"]
-    }
-  },
-
   // Blockchain Methods
   {
     name: "wallet_get_balance",
@@ -175,7 +174,7 @@ export const tools = [
         provider: { type: "string", description: "Optional JSON RPC provider URL" },
         blockTag: { type: "string", description: "Optional block tag (latest, pending, etc.)" }
       },
-      required: ["wallet"]
+      required: ["wallet", "provider"]
     }
   },
   {
@@ -581,7 +580,6 @@ export const handlers: HandlerDictionary = {
   "wallet_get_address": getAddressHandler,
   "wallet_get_public_key": getPublicKeyHandler,
   "wallet_get_private_key": getPrivateKeyHandler,
-  "wallet_get_mnemonic": getMnemonicHandler,
 
   // Blockchain Methods
   "wallet_get_balance": getBalanceHandler,
@@ -616,5 +614,8 @@ export const handlers: HandlerDictionary = {
   // Network Methods
   "network_get_network": getNetworkHandler,
   "network_get_block_number": getBlockNumberHandler,
-  "network_get_fee_data": getFeeDataHandler
+  "network_get_fee_data": getFeeDataHandler,
+
+  // Mnemonic Methods
+  "wallet_create_mnemonic_phrase": createMnemonicPhraseHandler
 };

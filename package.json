@@ -4,6 +4,9 @@
   "description": "MCP server for EVM crypto wallet operations using ethers.js v5",
   "main": "build/index.js",
   "type": "module",
+  "bin": {
+    "mcp-cryptowallet-evm": "./build/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node build/index.js",

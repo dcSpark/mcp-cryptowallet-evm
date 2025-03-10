@@ -1,5 +1,5 @@
 {
-  "name": "mcp-cryptowallet-evm",
+  "name": "@mcp-dockmaster/mcp-cryptowallet-evm",
   "version": "1.0.0",
   "description": "MCP server for EVM crypto wallet operations using ethers.js v5",
   "main": "build/index.js",

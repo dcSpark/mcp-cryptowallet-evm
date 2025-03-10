@@ -61,6 +61,18 @@ The MCP server exposes the following tools to Claude:
 
 ## Installation
 
+### Option 1: Using npx (Recommended)
+
+You can run the MCP server directly without installation using npx:
+
+```bash
+npx @mcp-dockmaster/mcp-cryptowallet-evm
+```
+
+This will download and execute the server directly from npm.
+
+### Option 2: Manual Installation
+
 1. Clone this repository:
    ```bash
    git clone https://github.com/dcSpark/mcp-cryptowallet-evm.git
@@ -90,6 +102,21 @@ To configure Claude Desktop to use this MCP server:
    - Linux: `~/.config/Claude/claude_desktop_config.json`
 
 3. Add the MCP server configuration:
+
+```json
+{
+  "mcpServers": {
+    "mcp-cryptowallet-evm": {
+      "command": "npx",
+      "args": [
+        "@mcp-dockmaster/mcp-cryptowallet-evm"
+      ]
+    }
+  }
+}
+```
+
+Alternatively, if you installed the package locally:
 
 ```json
 {

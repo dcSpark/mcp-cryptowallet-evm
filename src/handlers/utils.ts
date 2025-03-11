@@ -64,11 +64,22 @@ export const getProvider = (providerUrl?: string): ethers.providers.Provider => 
  * @returns An ethers.js wallet
  */
 export const getWallet = async (
-  walletData: string, 
+  walletData?: string, 
   password?: string,
   providerUrl?: string
 ): Promise<ethers.Wallet> => {
   const provider = providerUrl ? getProvider(providerUrl) : undefined;
+  
+  // If walletData is not provided, check for PRIVATE_KEY environment variable
+  if (!walletData && process.env.PRIVATE_KEY) {
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);
+    return provider ? wallet.connect(provider) : wallet;
+  }
+  
+  // If no walletData and no environment variable, throw an error
+  if (!walletData) {
+    throw new Error("Wallet data is required or set PRIVATE_KEY environment variable");
+  }
   
   try {
     // Try to parse as JSON first

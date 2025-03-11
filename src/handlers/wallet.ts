@@ -174,7 +174,9 @@ export const getAddressHandler = async (input: any): Promise<ToolResultSchema<an
 
     return createSuccessResponse({
       address: wallet.address
-    }, "Wallet address retrieved successfully");
+    }, `Wallet address retrieved successfully:
+      Address: ${wallet.address}
+    `);
   } catch (error) {
     return createErrorResponse(`Failed to get wallet address: ${(error as Error).message}`);
   }
@@ -186,7 +188,9 @@ export const getPublicKeyHandler = async (input: any): Promise<ToolResultSchema<
 
     return createSuccessResponse({
       publicKey: wallet.publicKey
-    }, "Wallet public key retrieved successfully");
+    }, `Wallet public key retrieved successfully:
+      Public Key: ${wallet.publicKey}
+    `);
   } catch (error) {
     return createErrorResponse(`Failed to get wallet public key: ${(error as Error).message}`);
   }
@@ -198,7 +202,9 @@ export const getPrivateKeyHandler = async (input: any): Promise<ToolResultSchema
 
     return createSuccessResponse({
       privateKey: wallet.privateKey
-    }, "WARNING: Never share your private key with anyone. Wallet private key retrieved successfully");
+    }, `Wallet private key retrieved successfully:
+      Private Key: ${wallet.privateKey}
+    `);
   } catch (error) {
     return createErrorResponse(`Failed to get wallet private key: ${(error as Error).message}`);
   }

@@ -170,10 +170,6 @@ export const encryptWalletHandler = async (input: any): Promise<ToolResultSchema
 
 export const getAddressHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     const wallet = await getWallet(input.wallet);
 
     return createSuccessResponse({
@@ -186,10 +182,6 @@ export const getAddressHandler = async (input: any): Promise<ToolResultSchema<an
 
 export const getPublicKeyHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     const wallet = await getWallet(input.wallet);
 
     return createSuccessResponse({
@@ -202,10 +194,6 @@ export const getPublicKeyHandler = async (input: any): Promise<ToolResultSchema<
 
 export const getPrivateKeyHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     const wallet = await getWallet(input.wallet, input.password);
 
     return createSuccessResponse({
@@ -219,9 +207,6 @@ export const getPrivateKeyHandler = async (input: any): Promise<ToolResultSchema
 
 export const getBalanceHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
     if (!input.provider) {
       return createErrorResponse("Provider URL is required to get balance");
     }
@@ -244,10 +229,6 @@ export const getBalanceHandler = async (input: any): Promise<ToolResultSchema<an
 
 export const getChainIdHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     const wallet = await getWallet(input.wallet, input.password, input.provider);
 
     if (!wallet.provider) {
@@ -268,10 +249,6 @@ export const getChainIdHandler = async (input: any): Promise<ToolResultSchema<an
 
 export const getGasPriceHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     const wallet = await getWallet(input.wallet, input.password, input.provider);
 
     if (!wallet.provider) {
@@ -294,10 +271,6 @@ export const getGasPriceHandler = async (input: any): Promise<ToolResultSchema<a
 
 export const getTransactionCountHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     const wallet = await getWallet(input.wallet, input.password, input.provider);
 
     if (!wallet.provider) {
@@ -318,10 +291,6 @@ export const getTransactionCountHandler = async (input: any): Promise<ToolResult
 
 export const callHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
     }
@@ -348,10 +317,6 @@ export const callHandler = async (input: any): Promise<ToolResultSchema<any>> =>
 
 export const sendTransactionHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
     }
@@ -389,10 +354,6 @@ export const sendTransactionHandler = async (input: any): Promise<ToolResultSche
 
 export const signTransactionHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
     }
@@ -415,10 +376,6 @@ export const signTransactionHandler = async (input: any): Promise<ToolResultSche
 
 export const populateTransactionHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
     }
@@ -461,10 +418,6 @@ export const populateTransactionHandler = async (input: any): Promise<ToolResult
 
 export const signMessageHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.wallet) {
-      return createErrorResponse("Wallet is required");
-    }
-
     if (!input.message) {
       return createErrorResponse("Message is required");
     }

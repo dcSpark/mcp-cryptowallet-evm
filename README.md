@@ -91,6 +91,12 @@ This will download and execute the server directly from npm.
 
 ## Configuration
 
+### Environment Variables
+
+The MCP server supports the following environment variables:
+
+- `PRIVATE_KEY`: Optional private key to use for wallet operations when no wallet is explicitly provided
+
 ### Configure Claude Desktop
 
 To configure Claude Desktop to use this MCP server:

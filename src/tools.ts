@@ -135,9 +135,9 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" }
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." }
       },
-      required: ["wallet"]
+      required: []
     }
   },
   {
@@ -146,9 +146,9 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" }
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." }
       },
-      required: ["wallet"]
+      required: []
     }
   },
   {
@@ -157,10 +157,10 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         password: { type: "string", description: "The password to decrypt the wallet if it's encrypted" }
       },
-      required: ["wallet"]
+      required: []
     }
   },
   // Blockchain Methods
@@ -170,11 +170,11 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         provider: { type: "string", description: "Optional JSON RPC provider URL" },
         blockTag: { type: "string", description: "Optional block tag (latest, pending, etc.)" }
       },
-      required: ["wallet", "provider"]
+      required: ["provider"]
     }
   },
   {
@@ -183,10 +183,10 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         provider: { type: "string", description: "Optional JSON RPC provider URL" }
       },
-      required: ["wallet"]
+      required: []
     }
   },
   {
@@ -195,10 +195,10 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         provider: { type: "string", description: "Optional JSON RPC provider URL" }
       },
-      required: ["wallet"]
+      required: []
     }
   },
   {
@@ -207,11 +207,11 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         provider: { type: "string", description: "Optional JSON RPC provider URL" },
         blockTag: { type: "string", description: "Optional block tag (latest, pending, etc.)" }
       },
-      required: ["wallet"]
+      required: []
     }
   },
   {
@@ -220,7 +220,7 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         provider: { type: "string", description: "Optional JSON RPC provider URL" },
         transaction: { 
           type: "object", 
@@ -237,7 +237,7 @@ export const tools = [
         },
         blockTag: { type: "string", description: "Optional block tag (latest, pending, etc.)" }
       },
-      required: ["wallet", "transaction"]
+      required: ["transaction"]
     }
   },
 
@@ -248,7 +248,7 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         provider: { type: "string", description: "Optional JSON RPC provider URL" },
         transaction: { 
           type: "object", 
@@ -268,7 +268,7 @@ export const tools = [
           required: ["to"]
         }
       },
-      required: ["wallet", "transaction"]
+      required: ["transaction"]
     }
   },
   {
@@ -277,7 +277,7 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         provider: { type: "string", description: "Optional JSON RPC provider URL" },
         transaction: { 
           type: "object", 
@@ -297,7 +297,7 @@ export const tools = [
           required: ["to"]
         }
       },
-      required: ["wallet", "transaction"]
+      required: ["transaction"]
     }
   },
   {
@@ -306,7 +306,7 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         provider: { type: "string", description: "Optional JSON RPC provider URL" },
         transaction: { 
           type: "object", 
@@ -326,7 +326,7 @@ export const tools = [
           required: ["to"]
         }
       },
-      required: ["wallet", "transaction"]
+      required: ["transaction"]
     }
   },
 
@@ -337,10 +337,10 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         message: { type: "string", description: "The message to sign" }
       },
-      required: ["wallet", "message"]
+      required: ["message"]
     }
   },
   {
@@ -349,12 +349,12 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON)" },
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
         domain: { type: "object", description: "The domain data" },
         types: { type: "object", description: "The type definitions" },
         value: { type: "object", description: "The value to sign" }
       },
-      required: ["wallet", "domain", "types", "value"]
+      required: ["domain", "types", "value"]
     }
   },
   {

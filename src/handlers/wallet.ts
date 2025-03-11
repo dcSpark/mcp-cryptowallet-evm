@@ -1,10 +1,24 @@
-import { ethers } from "ethers";
+import { ethers, providers } from "ethers";
 import { ToolResultSchema } from "../types.js";
-import { createSuccessResponse, createErrorResponse, getProvider, getWallet } from "./utils.js";
+import { createSuccessResponse, createErrorResponse, getProvider, getWallet, setProvider } from "./utils.js";
 import { fromPrivateKeyHandlerInput, createMnemonicPhraseHandlerInput } from "./wallet.types.js";
 import { generateMnemonic,  } from '@scure/bip39';
-// Wallet Creation and Management
 
+// Provider handlers
+
+export const setProviderHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+  try {
+    setProvider(input.providerURL);
+    return createSuccessResponse({}, `Provider set successfully:
+      Provider URL: ${input.providerURL}
+    `);
+  } catch (error) {
+    return createErrorResponse(`Failed to set provider: ${(error as Error).message}`);
+  }
+};
+
+
+// Wallet Creation and Management
 export const createWalletHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
     const options: any = {};
@@ -50,7 +64,7 @@ export const fromPrivateKeyHandler = async (input: fromPrivateKeyHandlerInput): 
       return createErrorResponse("Private key is required");
     }
 
-    const provider = input.provider ? getProvider(input.provider) : undefined;
+    const provider = getProvider()
     const wallet = new ethers.Wallet(input.privateKey, provider);
 
     return createSuccessResponse({
@@ -98,7 +112,7 @@ export const fromMnemonicHandler = async (input: any): Promise<ToolResultSchema<
       wordlist: (input.locale && ethers.wordlists[input.locale]) || ethers.wordlists.en
     };
 
-    const provider = input.provider ? getProvider(input.provider) : undefined;
+    const provider = getProvider();
     const wallet = ethers.Wallet.fromMnemonic(input.mnemonic, options.path, options.wordlist);
 
     if (provider) wallet.connect(provider);
@@ -129,7 +143,7 @@ export const fromEncryptedJsonHandler = async (input: any): Promise<ToolResultSc
     }
 
     const wallet = await ethers.Wallet.fromEncryptedJson(input.json, input.password);
-    const provider = input.provider ? getProvider(input.provider) : undefined;
+    const provider = getProvider()
 
     if (provider) {
       wallet.connect(provider);
@@ -213,11 +227,7 @@ export const getPrivateKeyHandler = async (input: any): Promise<ToolResultSchema
 
 export const getBalanceHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider URL is required to get balance");
-    }
-
-    const wallet = await getWallet(input.wallet, input.password, input.provider);
+    const wallet = await getWallet(input.wallet, input.password);
 
     const balance = await wallet.getBalance(input.blockTag ?? "latest");
 
@@ -235,10 +245,10 @@ export const getBalanceHandler = async (input: any): Promise<ToolResultSchema<an
 
 export const getChainIdHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    const wallet = await getWallet(input.wallet, input.password, input.provider);
+    const wallet = await getWallet(input.wallet, input.password);
 
     if (!wallet.provider) {
-      return createErrorResponse("Provider is required to get chain ID");
+      return createErrorResponse("Provider is required to get chain ID, please set the provider URL");
     }
 
     const chainId = await wallet.getChainId();
@@ -255,10 +265,10 @@ export const getChainIdHandler = async (input: any): Promise<ToolResultSchema<an
 
 export const getGasPriceHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    const wallet = await getWallet(input.wallet, input.password, input.provider);
+    const wallet = await getWallet(input.wallet, input.password);
 
     if (!wallet.provider) {
-      return createErrorResponse("Provider is required to get gas price");
+      return createErrorResponse("Provider is required to get gas price, please set the provider URL");
     }
 
     const gasPrice = await wallet.getGasPrice();
@@ -277,10 +287,10 @@ export const getGasPriceHandler = async (input: any): Promise<ToolResultSchema<a
 
 export const getTransactionCountHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    const wallet = await getWallet(input.wallet, input.password, input.provider);
+    const wallet = await getWallet(input.wallet, input.password);
 
     if (!wallet.provider) {
-      return createErrorResponse("Provider is required to get transaction count");
+      return createErrorResponse("Provider is required to get transaction count, please set the provider URL");
     }
 
     const transactionCount = await wallet.getTransactionCount(input.blockTag);
@@ -301,10 +311,10 @@ export const callHandler = async (input: any): Promise<ToolResultSchema<any>> =>
       return createErrorResponse("Transaction is required");
     }
 
-    const wallet = await getWallet(input.wallet, input.password, input.provider);
+    const wallet = await getWallet(input.wallet, input.password);
 
     if (!wallet.provider) {
-      return createErrorResponse("Provider is required to call a contract");
+      return createErrorResponse("Provider is required to call a contract, please set the provider URL");
     }
 
     const result = await wallet.call(input.transaction, input.blockTag);
@@ -327,10 +337,9 @@ export const sendTransactionHandler = async (input: any): Promise<ToolResultSche
       return createErrorResponse("Transaction is required");
     }
 
-    const wallet = await getWallet(input.wallet, input.password, input.provider);
-
+    const wallet = await getWallet(input.wallet, input.password);
     if (!wallet.provider) {
-      return createErrorResponse("Provider is required to send a transaction");
+      return createErrorResponse("Provider is required to send a transaction, please set the provider URL");
     }
 
     const tx = await wallet.sendTransaction(input.transaction);
@@ -364,7 +373,7 @@ export const signTransactionHandler = async (input: any): Promise<ToolResultSche
       return createErrorResponse("Transaction is required");
     }
 
-    const wallet = await getWallet(input.wallet, input.password, input.provider);
+    const wallet = await getWallet(input.wallet, input.password);
 
     // For signing a transaction, we need to populate it first
     const populatedTx = await wallet.populateTransaction(input.transaction);
@@ -386,10 +395,10 @@ export const populateTransactionHandler = async (input: any): Promise<ToolResult
       return createErrorResponse("Transaction is required");
     }
 
-    const wallet = await getWallet(input.wallet, input.password, input.provider);
+    const wallet = await getWallet(input.wallet, input.password);
 
     if (!wallet.provider) {
-      return createErrorResponse("Provider is required to populate a transaction");
+      return createErrorResponse("Provider is required to populate a transaction, please set the provider URL");
     }
 
     const populatedTx = await wallet.populateTransaction(input.transaction);
@@ -536,15 +545,11 @@ export const verifyTypedDataHandler = async (input: any): Promise<ToolResultSche
 
 export const getBlockHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.blockHashOrBlockTag) {
       return createErrorResponse("Block hash or block tag is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
     // In ethers.js v5, getBlock can take includeTransactions as a second parameter
     // but TypeScript definitions might not reflect this
     const block = await (provider as any).getBlock(input.blockHashOrBlockTag, input.includeTransactions);
@@ -564,15 +569,11 @@ export const getBlockHandler = async (input: any): Promise<ToolResultSchema<any>
 
 export const getTransactionHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.transactionHash) {
       return createErrorResponse("Transaction hash is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
     const transaction = await provider.getTransaction(input.transactionHash);
 
     return createSuccessResponse({
@@ -588,15 +589,11 @@ export const getTransactionHandler = async (input: any): Promise<ToolResultSchem
 
 export const getTransactionReceiptHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.transactionHash) {
       return createErrorResponse("Transaction hash is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
     const receipt = await provider.getTransactionReceipt(input.transactionHash);
 
     return createSuccessResponse({
@@ -612,15 +609,11 @@ export const getTransactionReceiptHandler = async (input: any): Promise<ToolResu
 
 export const getCodeHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.address) {
       return createErrorResponse("Address is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
     const code = await provider.getCode(input.address, input.blockTag);
 
     return createSuccessResponse({
@@ -636,10 +629,6 @@ export const getCodeHandler = async (input: any): Promise<ToolResultSchema<any>>
 
 export const getStorageAtHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.address) {
       return createErrorResponse("Address is required");
     }
@@ -648,7 +637,7 @@ export const getStorageAtHandler = async (input: any): Promise<ToolResultSchema<
       return createErrorResponse("Position is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
     const storage = await provider.getStorageAt(input.address, input.position, input.blockTag);
 
     return createSuccessResponse({
@@ -665,15 +654,14 @@ export const getStorageAtHandler = async (input: any): Promise<ToolResultSchema<
 
 export const estimateGasHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
+    if (!provider) {
+      return createErrorResponse("Provider is required to estimate gas, please set the provider URL");
+    }
     const gasEstimate = await provider.estimateGas(input.transaction);
 
     return createSuccessResponse({
@@ -688,15 +676,14 @@ export const estimateGasHandler = async (input: any): Promise<ToolResultSchema<a
 
 export const getLogsHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.filter) {
       return createErrorResponse("Filter is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
+    if (!provider) {
+      return createErrorResponse("Provider is required to get logs, please set the provider URL");
+    }
     const logs = await provider.getLogs(input.filter);
 
     return createSuccessResponse({
@@ -711,15 +698,14 @@ export const getLogsHandler = async (input: any): Promise<ToolResultSchema<any>>
 
 export const getEnsResolverHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.name) {
       return createErrorResponse("ENS name is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
+    if (!provider) {
+      return createErrorResponse("Provider is required to get ENS resolver, please set the provider URL");
+    }
     // In ethers.js v5, getResolver might not be directly on the provider type
     // but it's available in the implementation
     const resolver = await (provider as any).getResolver(input.name);
@@ -740,15 +726,14 @@ export const getEnsResolverHandler = async (input: any): Promise<ToolResultSchem
 
 export const lookupAddressHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.address) {
       return createErrorResponse("Address is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
+    if (!provider) {
+      return createErrorResponse("Provider is required to lookup ENS name, please set the provider URL");
+    }
     const name = await provider.lookupAddress(input.address);
 
     return createSuccessResponse({
@@ -763,15 +748,14 @@ export const lookupAddressHandler = async (input: any): Promise<ToolResultSchema
 
 export const resolveNameHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
-    }
-
     if (!input.name) {
       return createErrorResponse("ENS name is required");
     }
 
-    const provider = getProvider(input.provider);
+    const provider = getProvider();
+    if (!provider) {
+      return createErrorResponse("Provider is required to resolve ENS name, please set the provider URL");
+    }
     const address = await provider.resolveName(input.name);
 
     return createSuccessResponse({
@@ -789,11 +773,10 @@ export const resolveNameHandler = async (input: any): Promise<ToolResultSchema<a
 
 export const getNetworkHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
+    const provider = getProvider();
+    if (!provider) {
+      return createErrorResponse("Provider is required to get network information, please set the provider URL");
     }
-
-    const provider = getProvider(input.provider);
     const network = await provider.getNetwork();
 
     return createSuccessResponse({
@@ -814,11 +797,10 @@ export const getNetworkHandler = async (input: any): Promise<ToolResultSchema<an
 
 export const getBlockNumberHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
+    const provider = getProvider();
+    if (!provider) {
+      return createErrorResponse("Provider is required to get block number, please set the provider URL");
     }
-
-    const provider = getProvider(input.provider);
     const blockNumber = await provider.getBlockNumber();
 
     return createSuccessResponse({
@@ -833,12 +815,10 @@ export const getBlockNumberHandler = async (input: any): Promise<ToolResultSchem
 
 export const getFeeDataHandler = async (input: any): Promise<ToolResultSchema<any>> => {
   try {
-    if (!input.provider) {
-      return createErrorResponse("Provider is required");
+    const provider = getProvider();
+    if (!provider) {
+      return createErrorResponse("Provider is required to get fee data, please set the provider URL");
     }
-
-    const provider = getProvider(input.provider);
-
     // getFeeData is available in ethers v5.5.0+
     // @ts-ignore - getFeeData might not be in the type definitions depending on the version
     const feeData = await provider.getFeeData();

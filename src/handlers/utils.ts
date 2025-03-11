@@ -1,6 +1,16 @@
 import { ethers } from "ethers";
 import { ToolResultSchema } from "../types.js";
 
+
+let provider: ethers.providers.Provider | undefined;
+try {
+  provider = process.env.PROVIDER_URL ? 
+    ethers.providers.getDefaultProvider(process.env.PROVIDER_URL) : 
+    ethers.providers.getDefaultProvider('https://eth.llamarpc.com');
+} catch (error) {
+  console.error("Error initializing provider:", error);
+}
+
 /**
  * Creates a success response with the given result
  * @param result The result to include in the response
@@ -39,20 +49,21 @@ export const createErrorResponse = (message: string): ToolResultSchema<any> => {
 };
 
 /**
- * Gets a provider from a provider URL
- * @param providerUrl The provider URL
+ * Gets the provider setup in memory
  * @returns An ethers.js provider
  */
-export const getProvider = (providerUrl?: string): ethers.providers.Provider => {
-  if (!providerUrl) {
-    // Default to Ethereum mainnet if no provider URL is specified
-    return ethers.getDefaultProvider();
+export const getProvider = (): ethers.providers.Provider => {
+  if (!provider) {
+    throw new Error(`Invalid provider URL: ${process.env.PROVIDER_URL}`);
   }
-  
+  return provider
+};
+
+export const setProvider = (providerURL: string) => {
   try {
-    return new ethers.providers.JsonRpcProvider(providerUrl);
+    provider = ethers.providers.getDefaultProvider(providerURL);
   } catch (error) {
-    throw new Error(`Invalid provider URL: ${providerUrl}`);
+    throw new Error(`Invalid provider URL: ${providerURL}`);
   }
 };
 
@@ -66,10 +77,8 @@ export const getProvider = (providerUrl?: string): ethers.providers.Provider => 
 export const getWallet = async (
   walletData?: string, 
   password?: string,
-  providerUrl?: string
 ): Promise<ethers.Wallet> => {
-  const provider = providerUrl ? getProvider(providerUrl) : undefined;
-  
+  const provider = getProvider()
   // If walletData is not provided, check for PRIVATE_KEY environment variable
   if (!walletData && process.env.PRIVATE_KEY) {
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY);

@@ -32,10 +32,22 @@ import {
   getNetworkHandler,
   getBlockNumberHandler,
   getFeeDataHandler,
-  createMnemonicPhraseHandler
+  createMnemonicPhraseHandler,
+  setProviderHandler
 } from "./handlers/wallet.js";
 
 export const tools = [
+  {
+    name: "wallet_provider_set",
+    description: "Set the provider URL. By default, the provider URL is set to the ETH mainnet or the URL set in the PROVIDER_URL environment variable.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        providerURL: { type: "string", description: "The provider RPC URL" }
+      },
+      required: ["providerURL"]
+    }
+  },
   // Wallet Creation and Management
   {
     name: "wallet_create_random",
@@ -56,8 +68,7 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        privateKey: { type: "string", description: "The private key" },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" }
+        privateKey: { type: "string", description: "The private key" }
       },
       required: ["privateKey"]
     }
@@ -82,8 +93,7 @@ export const tools = [
       properties: {
         mnemonic: { type: "string", description: "The mnemonic phrase" },
         path: { type: "string", description: "Optional HD path" },
-        locale: { type: "string", description: "Optional locale for the wordlist" },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" }
+        locale: { type: "string", description: "Optional locale for the wordlist" }
       },
       required: ["mnemonic"]
     }
@@ -95,8 +105,7 @@ export const tools = [
       type: "object",
       properties: {
         json: { type: "string", description: "The encrypted JSON wallet" },
-        password: { type: "string", description: "The password to decrypt the wallet" },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" }
+        password: { type: "string", description: "The password to decrypt the wallet" }
       },
       required: ["json", "password"]
     }
@@ -171,10 +180,9 @@ export const tools = [
       type: "object",
       properties: {
         wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" },
         blockTag: { type: "string", description: "Optional block tag (latest, pending, etc.)" }
       },
-      required: ["provider"]
+      required: []
     }
   },
   {
@@ -183,8 +191,7 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" }
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." }
       },
       required: []
     }
@@ -195,8 +202,7 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" }
+        wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." }
       },
       required: []
     }
@@ -208,7 +214,6 @@ export const tools = [
       type: "object",
       properties: {
         wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" },
         blockTag: { type: "string", description: "Optional block tag (latest, pending, etc.)" }
       },
       required: []
@@ -221,7 +226,6 @@ export const tools = [
       type: "object",
       properties: {
         wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" },
         transaction: { 
           type: "object", 
           description: "The transaction to call",
@@ -249,7 +253,6 @@ export const tools = [
       type: "object",
       properties: {
         wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" },
         transaction: { 
           type: "object", 
           description: "The transaction to send",
@@ -278,7 +281,6 @@ export const tools = [
       type: "object",
       properties: {
         wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" },
         transaction: { 
           type: "object", 
           description: "The transaction to sign",
@@ -307,7 +309,6 @@ export const tools = [
       type: "object",
       properties: {
         wallet: { type: "string", description: "The wallet (private key, mnemonic, or JSON). If not provided, uses PRIVATE_KEY environment variable if set." },
-        provider: { type: "string", description: "Optional JSON RPC provider URL" },
         transaction: { 
           type: "object", 
           description: "The transaction to populate",
@@ -393,11 +394,10 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         blockHashOrBlockTag: { type: "string", description: "Block hash or block tag (latest, pending, etc.)" },
         includeTransactions: { type: "boolean", description: "Whether to include full transactions or just hashes" }
       },
-      required: ["provider", "blockHashOrBlockTag"]
+      required: ["blockHashOrBlockTag"]
     }
   },
   {
@@ -406,10 +406,9 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         transactionHash: { type: "string", description: "The transaction hash" }
       },
-      required: ["provider", "transactionHash"]
+      required: ["transactionHash"]
     }
   },
   {
@@ -418,10 +417,9 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         transactionHash: { type: "string", description: "The transaction hash" }
       },
-      required: ["provider", "transactionHash"]
+      required: ["transactionHash"]
     }
   },
   {
@@ -430,11 +428,10 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         address: { type: "string", description: "The address to get code from" },
         blockTag: { type: "string", description: "Optional block tag (latest, pending, etc.)" }
       },
-      required: ["provider", "address"]
+      required: ["address"]
     }
   },
   {
@@ -443,12 +440,11 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         address: { type: "string", description: "The address to get storage from" },
         position: { type: "string", description: "The storage position" },
         blockTag: { type: "string", description: "Optional block tag (latest, pending, etc.)" }
       },
-      required: ["provider", "address", "position"]
+      required: ["address", "position"]
     }
   },
   {
@@ -457,7 +453,6 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         transaction: { 
           type: "object", 
           description: "The transaction to estimate gas for",
@@ -469,7 +464,7 @@ export const tools = [
           }
         }
       },
-      required: ["provider", "transaction"]
+      required: ["transaction"]
     }
   },
   {
@@ -478,7 +473,6 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         filter: { 
           type: "object", 
           description: "The filter to apply",
@@ -490,7 +484,7 @@ export const tools = [
           }
         }
       },
-      required: ["provider", "filter"]
+      required: ["filter"]
     }
   },
   {
@@ -499,10 +493,9 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         name: { type: "string", description: "The ENS name" }
       },
-      required: ["provider", "name"]
+      required: ["name"]
     }
   },
   {
@@ -511,10 +504,9 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         address: { type: "string", description: "The address to lookup" }
       },
-      required: ["provider", "address"]
+      required: ["address"]
     }
   },
   {
@@ -523,10 +515,9 @@ export const tools = [
     inputSchema: {
       type: "object",
       properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" },
         name: { type: "string", description: "The ENS name to resolve" }
       },
-      required: ["provider", "name"]
+      required: ["name"]
     }
   },
 
@@ -536,10 +527,8 @@ export const tools = [
     description: "Get the current network information",
     inputSchema: {
       type: "object",
-      properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" }
-      },
-      required: ["provider"]
+      properties: {},
+      required: []
     }
   },
   {
@@ -547,10 +536,8 @@ export const tools = [
     description: "Get the current block number",
     inputSchema: {
       type: "object",
-      properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" }
-      },
-      required: ["provider"]
+      properties: {},
+      required: []
     }
   },
   {
@@ -558,10 +545,8 @@ export const tools = [
     description: "Get the current fee data (base fee, max priority fee, etc.)",
     inputSchema: {
       type: "object",
-      properties: {
-        provider: { type: "string", description: "JSON RPC provider URL" }
-      },
-      required: ["provider"]
+      properties: {},
+      required: []
     }
   }
 ];
@@ -569,6 +554,8 @@ export const tools = [
 type HandlerDictionary = Record<string, (input: any) => any>;
 
 export const handlers: HandlerDictionary = {
+  // Provider Methods
+  "wallet_provider_set": setProviderHandler,
   // Wallet Creation and Management
   "wallet_create_random": createWalletHandler,
   "wallet_from_private_key": fromPrivateKeyHandler,

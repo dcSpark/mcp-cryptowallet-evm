@@ -1,9 +1,7 @@
 .eslintrc
 tests
-README.md
 .gitignore
 .git
 .DS_Store
 .vscode
 .env
-*.md

@@ -1,6 +1,6 @@
 {
   "name": "@mcp-dockmaster/mcp-cryptowallet-evm",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "MCP server for EVM crypto wallet operations using ethers.js v5",
   "main": "build/index.js",
   "type": "module",
@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node build/index.js",
-    "test": "jest",
+    "test": "node --test ./tests/**/*.test.ts",
     "lint": "eslint src/**/*.ts"
   },
   "repository": {

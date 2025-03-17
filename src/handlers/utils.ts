@@ -12,12 +12,11 @@ try {
 }
 
 /**
- * Creates a success response with the given result
- * @param result The result to include in the response
+ * Creates a success response with the given message
  * @param message Optional message to include in the response
- * @returns A ToolResultSchema with the result and message
+ * @returns A ToolResultSchema with the message
  */
-export const createSuccessResponse = <T>(result: T, message?: string): ToolResultSchema<T> => {
+export const createSuccessResponse = (message?: string): ToolResultSchema => {
   return {
     content: [
       {
@@ -26,7 +25,6 @@ export const createSuccessResponse = <T>(result: T, message?: string): ToolResul
       }
     ],
     isError: false,
-    toolResult: result
   };
 };
 
@@ -35,7 +33,7 @@ export const createSuccessResponse = <T>(result: T, message?: string): ToolResul
  * @param message The error message
  * @returns A ToolResultSchema with the error message
  */
-export const createErrorResponse = (message: string): ToolResultSchema<any> => {
+export const createErrorResponse = (message: string): ToolResultSchema => {
   return {
     content: [
       {
@@ -43,8 +41,7 @@ export const createErrorResponse = (message: string): ToolResultSchema<any> => {
         text: message
       }
     ],
-    isError: true,
-    toolResult: { error: message }
+    isError: true
   };
 };
 

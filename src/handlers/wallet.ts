@@ -6,10 +6,10 @@ import { generateMnemonic,  } from '@scure/bip39';
 
 // Provider handlers
 
-export const setProviderHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const setProviderHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     setProvider(input.providerURL);
-    return createSuccessResponse({}, `Provider set successfully:
+    return createSuccessResponse(`Provider set successfully:
       Provider URL: ${input.providerURL}
     `);
   } catch (error) {
@@ -19,7 +19,7 @@ export const setProviderHandler = async (input: any): Promise<ToolResultSchema<a
 
 
 // Wallet Creation and Management
-export const createWalletHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const createWalletHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const options: any = {};
 
@@ -46,7 +46,7 @@ export const createWalletHandler = async (input: any): Promise<ToolResultSchema<
       result.encryptedWallet = encryptedWallet;
     }
 
-    return createSuccessResponse(result, `Wallet created successfully:
+    return createSuccessResponse(`Wallet created successfully:
       Address: ${wallet.address}
       Private Key: ${wallet.privateKey}
       Public Key: ${wallet.publicKey}
@@ -58,7 +58,7 @@ export const createWalletHandler = async (input: any): Promise<ToolResultSchema<
   }
 };
 
-export const fromPrivateKeyHandler = async (input: fromPrivateKeyHandlerInput): Promise<ToolResultSchema<any>> => {
+export const fromPrivateKeyHandler = async (input: fromPrivateKeyHandlerInput): Promise<ToolResultSchema> => {
   try {
     if (!input.privateKey) {
       return createErrorResponse("Private key is required");
@@ -67,11 +67,8 @@ export const fromPrivateKeyHandler = async (input: fromPrivateKeyHandlerInput): 
     const provider = getProvider()
     const wallet = new ethers.Wallet(input.privateKey, provider);
 
-    return createSuccessResponse({
-      address: wallet.address,
-      privateKey: wallet.privateKey,
-      publicKey: wallet.publicKey
-    }, `Wallet created from private key successfully:
+    return createSuccessResponse(
+    `Wallet created from private key successfully:
       Address: ${wallet.address}
       Private Key: ${wallet.privateKey}
       Public Key: ${wallet.publicKey}
@@ -81,7 +78,7 @@ export const fromPrivateKeyHandler = async (input: fromPrivateKeyHandlerInput): 
   }
 };
 
-export const createMnemonicPhraseHandler = async (input: createMnemonicPhraseHandlerInput): Promise<ToolResultSchema<any>> => {
+export const createMnemonicPhraseHandler = async (input: createMnemonicPhraseHandlerInput): Promise<ToolResultSchema> => {
   try {
     const { wordlist } = await import(`@scure/bip39/wordlists/${input.locale || 'english'}`);
     if (!wordlist) {
@@ -91,9 +88,8 @@ export const createMnemonicPhraseHandler = async (input: createMnemonicPhraseHan
     const entropyBits = ((input.length ?? 12) / 3) * 32;
     const mnemonic = generateMnemonic(wordlist, entropyBits);
 
-    return createSuccessResponse({
-      mnemonic: mnemonic
-    }, `Mnemonic phrase created successfully:
+    return createSuccessResponse(
+    `Mnemonic phrase created successfully:
       Mnemonic: "${mnemonic}"
     `);
   } catch (error) {
@@ -101,7 +97,7 @@ export const createMnemonicPhraseHandler = async (input: createMnemonicPhraseHan
   }
 };
 
-export const fromMnemonicHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const fromMnemonicHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.mnemonic) {
       return createErrorResponse("Mnemonic is required");
@@ -117,13 +113,10 @@ export const fromMnemonicHandler = async (input: any): Promise<ToolResultSchema<
 
     if (provider) wallet.connect(provider);
 
-    return createSuccessResponse({
-      address: wallet.address,
-      mnemonic: wallet.mnemonic?.phrase,
-      privateKey: wallet.privateKey,
-      publicKey: wallet.publicKey
-    }, `Wallet created from mnemonic successfully:
+    return createSuccessResponse(
+    `Wallet created from mnemonic successfully:
       Address: ${wallet.address}
+      Mnemonic: ${input.mnemonic}
       Private Key: ${wallet.privateKey}
       Public Key: ${wallet.publicKey}
     `);
@@ -132,7 +125,7 @@ export const fromMnemonicHandler = async (input: any): Promise<ToolResultSchema<
   }
 };
 
-export const fromEncryptedJsonHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const fromEncryptedJsonHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.json) {
       return createErrorResponse("Encrypted JSON is required");
@@ -149,17 +142,18 @@ export const fromEncryptedJsonHandler = async (input: any): Promise<ToolResultSc
       wallet.connect(provider);
     }
 
-    return createSuccessResponse({
-      address: wallet.address,
-      privateKey: wallet.privateKey,
-      publicKey: wallet.publicKey
-    }, "Wallet created from encrypted JSON successfully");
+    return createSuccessResponse(
+    `Wallet created from encrypted JSON successfully
+      Address: ${wallet.address}
+      Private Key: ${wallet.privateKey}
+      Public Key: ${wallet.publicKey}
+    `);
   } catch (error) {
     return createErrorResponse(`Failed to create wallet from encrypted JSON: ${(error as Error).message}`);
   }
 };
 
-export const encryptWalletHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const encryptWalletHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.wallet) {
       return createErrorResponse("Wallet is required");
@@ -172,9 +166,10 @@ export const encryptWalletHandler = async (input: any): Promise<ToolResultSchema
     const wallet = await getWallet(input.wallet);
     const encryptedWallet = await wallet.encrypt(input.password, input.options);
 
-    return createSuccessResponse({
-      encryptedWallet
-    }, "Wallet encrypted successfully");
+    return createSuccessResponse(
+    `Wallet encrypted successfully
+      Encrypted Wallet: ${encryptedWallet}
+    `);
   } catch (error) {
     return createErrorResponse(`Failed to encrypt wallet: ${(error as Error).message}`);
   }
@@ -182,13 +177,12 @@ export const encryptWalletHandler = async (input: any): Promise<ToolResultSchema
 
 // Wallet Properties
 
-export const getAddressHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getAddressHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const wallet = await getWallet(input.wallet);
 
-    return createSuccessResponse({
-      address: wallet.address
-    }, `Wallet address retrieved successfully:
+    return createSuccessResponse(
+    `Wallet address retrieved successfully:
       Address: ${wallet.address}
     `);
   } catch (error) {
@@ -196,13 +190,12 @@ export const getAddressHandler = async (input: any): Promise<ToolResultSchema<an
   }
 };
 
-export const getPublicKeyHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getPublicKeyHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const wallet = await getWallet(input.wallet);
 
-    return createSuccessResponse({
-      publicKey: wallet.publicKey
-    }, `Wallet public key retrieved successfully:
+    return createSuccessResponse(
+    `Wallet public key retrieved successfully:
       Public Key: ${wallet.publicKey}
     `);
   } catch (error) {
@@ -210,13 +203,12 @@ export const getPublicKeyHandler = async (input: any): Promise<ToolResultSchema<
   }
 };
 
-export const getPrivateKeyHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getPrivateKeyHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const wallet = await getWallet(input.wallet, input.password);
 
-    return createSuccessResponse({
-      privateKey: wallet.privateKey
-    }, `Wallet private key retrieved successfully:
+    return createSuccessResponse(
+    `Wallet private key retrieved successfully:
       Private Key: ${wallet.privateKey}
     `);
   } catch (error) {
@@ -225,16 +217,14 @@ export const getPrivateKeyHandler = async (input: any): Promise<ToolResultSchema
 };
 // Blockchain Methods
 
-export const getBalanceHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getBalanceHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const wallet = await getWallet(input.wallet, input.password);
 
     const balance = await wallet.getBalance(input.blockTag ?? "latest");
 
-    return createSuccessResponse({
-      balance: balance.toString(),
-      balanceInEth: ethers.utils.formatEther(balance)
-    }, `Wallet balance retrieved successfully
+    return createSuccessResponse(
+      `Wallet balance retrieved successfully
       Balance: ${balance.toString()}
       Balance in ETH: ${ethers.utils.formatEther(balance)}
     `);
@@ -243,7 +233,7 @@ export const getBalanceHandler = async (input: any): Promise<ToolResultSchema<an
   }
 };
 
-export const getChainIdHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getChainIdHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const wallet = await getWallet(input.wallet, input.password);
 
@@ -253,9 +243,8 @@ export const getChainIdHandler = async (input: any): Promise<ToolResultSchema<an
 
     const chainId = await wallet.getChainId();
 
-    return createSuccessResponse({
-      chainId
-    }, `Chain ID retrieved successfully
+    return createSuccessResponse(
+    `Chain ID retrieved successfully
       Chain ID: ${chainId.toString()}
     `);
   } catch (error) {
@@ -263,7 +252,7 @@ export const getChainIdHandler = async (input: any): Promise<ToolResultSchema<an
   }
 };
 
-export const getGasPriceHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getGasPriceHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const wallet = await getWallet(input.wallet, input.password);
 
@@ -273,10 +262,8 @@ export const getGasPriceHandler = async (input: any): Promise<ToolResultSchema<a
 
     const gasPrice = await wallet.getGasPrice();
 
-    return createSuccessResponse({
-      gasPrice: gasPrice.toString(),
-      gasPriceInGwei: ethers.utils.formatUnits(gasPrice, "gwei")
-    }, `Gas price retrieved successfully
+    return createSuccessResponse(
+    `Gas price retrieved successfully
       Gas price: ${gasPrice.toString()}
       Gas price in Gwei: ${ethers.utils.formatUnits(gasPrice, "gwei")}
     `);
@@ -285,7 +272,7 @@ export const getGasPriceHandler = async (input: any): Promise<ToolResultSchema<a
   }
 };
 
-export const getTransactionCountHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getTransactionCountHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const wallet = await getWallet(input.wallet, input.password);
 
@@ -295,9 +282,8 @@ export const getTransactionCountHandler = async (input: any): Promise<ToolResult
 
     const transactionCount = await wallet.getTransactionCount(input.blockTag);
 
-    return createSuccessResponse({
-      transactionCount
-    }, `Transaction count retrieved successfully
+    return createSuccessResponse(
+    `Transaction count retrieved successfully
       Transaction count: ${transactionCount.toString()}
     `);
   } catch (error) {
@@ -305,7 +291,7 @@ export const getTransactionCountHandler = async (input: any): Promise<ToolResult
   }
 };
 
-export const callHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const callHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
@@ -319,9 +305,8 @@ export const callHandler = async (input: any): Promise<ToolResultSchema<any>> =>
 
     const result = await wallet.call(input.transaction, input.blockTag);
 
-    return createSuccessResponse({
-      result
-    }, `Contract call executed successfully
+    return createSuccessResponse(
+    `Contract call executed successfully
       Result: ${result}
     `);
   } catch (error) {
@@ -331,7 +316,7 @@ export const callHandler = async (input: any): Promise<ToolResultSchema<any>> =>
 
 // Transaction Methods
 
-export const sendTransactionHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const sendTransactionHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
@@ -344,18 +329,8 @@ export const sendTransactionHandler = async (input: any): Promise<ToolResultSche
 
     const tx = await wallet.sendTransaction(input.transaction);
 
-    return createSuccessResponse({
-      hash: tx.hash,
-      nonce: tx.nonce,
-      gasLimit: tx.gasLimit.toString(),
-      gasPrice: tx.gasPrice?.toString(),
-      data: tx.data,
-      value: tx.value.toString(),
-      chainId: tx.chainId,
-      from: tx.from,
-      to: tx.to,
-      type: tx.type
-    }, `Transaction sent successfully
+    return createSuccessResponse(
+    `Transaction sent successfully
       Hash: ${tx.hash}
       Nonce: ${tx.nonce.toString()}
       Gas limit: ${tx.gasLimit.toString()}
@@ -367,7 +342,7 @@ export const sendTransactionHandler = async (input: any): Promise<ToolResultSche
   }
 };
 
-export const signTransactionHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const signTransactionHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
@@ -379,9 +354,8 @@ export const signTransactionHandler = async (input: any): Promise<ToolResultSche
     const populatedTx = await wallet.populateTransaction(input.transaction);
     const signedTx = await wallet.signTransaction(populatedTx);
 
-    return createSuccessResponse({
-      signedTransaction: signedTx
-    }, `Transaction signed successfully
+    return createSuccessResponse(
+    `Transaction signed successfully
       Signed transaction: ${signedTx}
     `);
   } catch (error) {
@@ -389,7 +363,7 @@ export const signTransactionHandler = async (input: any): Promise<ToolResultSche
   }
 };
 
-export const populateTransactionHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const populateTransactionHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
@@ -403,21 +377,8 @@ export const populateTransactionHandler = async (input: any): Promise<ToolResult
 
     const populatedTx = await wallet.populateTransaction(input.transaction);
 
-    return createSuccessResponse({
-      populatedTransaction: {
-        to: populatedTx.to,
-        from: populatedTx.from,
-        nonce: populatedTx.nonce,
-        gasLimit: populatedTx.gasLimit?.toString(),
-        gasPrice: populatedTx.gasPrice?.toString(),
-        data: populatedTx.data,
-        value: populatedTx.value?.toString(),
-        chainId: populatedTx.chainId,
-        type: populatedTx.type,
-        maxFeePerGas: populatedTx.maxFeePerGas?.toString(),
-        maxPriorityFeePerGas: populatedTx.maxPriorityFeePerGas?.toString()
-      }
-    }, `Transaction populated successfully
+    return createSuccessResponse(
+    `Transaction populated successfully
       To: ${populatedTx.to}
       From: ${populatedTx.from}
       Nonce: ${populatedTx.nonce?.toString() ?? "Not specified"}
@@ -431,7 +392,7 @@ export const populateTransactionHandler = async (input: any): Promise<ToolResult
 
 // Signing Methods
 
-export const signMessageHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const signMessageHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.message) {
       return createErrorResponse("Message is required");
@@ -440,10 +401,7 @@ export const signMessageHandler = async (input: any): Promise<ToolResultSchema<a
     const wallet = await getWallet(input.wallet, input.password);
     const signature = await wallet.signMessage(input.message);
 
-    return createSuccessResponse({
-      signature,
-      message: input.message
-    }, `Message signed successfully
+    return createSuccessResponse(`Message signed successfully
       Signature: ${signature}
       Message: "${input.message}"
     `);
@@ -452,7 +410,7 @@ export const signMessageHandler = async (input: any): Promise<ToolResultSchema<a
   }
 };
 
-export const signTypedDataHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const signTypedDataHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.wallet) {
       return createErrorResponse("Wallet is required");
@@ -468,12 +426,8 @@ export const signTypedDataHandler = async (input: any): Promise<ToolResultSchema
     // @ts-ignore - _signTypedData is not in the type definitions but is available
     const signature = await wallet._signTypedData(input.domain, input.types, input.value);
 
-    return createSuccessResponse({
-      signature,
-      domain: input.domain,
-      types: input.types,
-      value: input.value
-    }, `Typed data signed successfully
+    return createSuccessResponse(
+    `Typed data signed successfully
       Signature: ${signature}
       Domain: ${input.domain}
       Types: ${input.types}
@@ -484,7 +438,7 @@ export const signTypedDataHandler = async (input: any): Promise<ToolResultSchema
   }
 };
 
-export const verifyMessageHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const verifyMessageHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.message || !input.signature || !input.address) {
       return createErrorResponse("Message, signature, and address are required");
@@ -493,10 +447,8 @@ export const verifyMessageHandler = async (input: any): Promise<ToolResultSchema
     const recoveredAddress = ethers.utils.verifyMessage(input.message, input.signature);
     const isValid = recoveredAddress.toLowerCase() === input.address.toLowerCase();
 
-    return createSuccessResponse({
-      isValid,
-      recoveredAddress
-    }, isValid ? `Signature verified successfully
+    return createSuccessResponse(
+    isValid ? `Signature verified successfully
       Message: "${input.message}"
       Signature: ${input.signature}
       Address: ${input.address}
@@ -510,7 +462,7 @@ export const verifyMessageHandler = async (input: any): Promise<ToolResultSchema
   }
 };
 
-export const verifyTypedDataHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const verifyTypedDataHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.domain || !input.types || !input.value || !input.signature || !input.address) {
       return createErrorResponse("Domain, types, value, signature, and address are required");
@@ -526,10 +478,8 @@ export const verifyTypedDataHandler = async (input: any): Promise<ToolResultSche
 
     const isValid = recoveredAddress.toLowerCase() === input.address.toLowerCase();
 
-    return createSuccessResponse({
-      isValid,
-      recoveredAddress
-    }, isValid ? `Typed data signature is valid
+    return createSuccessResponse(
+    isValid ? `Typed data signature is valid
       Domain: ${input.domain}
       Types: ${input.types}
       Value: ${input.value}
@@ -543,7 +493,7 @@ export const verifyTypedDataHandler = async (input: any): Promise<ToolResultSche
 
 // Provider Methods
 
-export const getBlockHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getBlockHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.blockHashOrBlockTag) {
       return createErrorResponse("Block hash or block tag is required");
@@ -554,9 +504,8 @@ export const getBlockHandler = async (input: any): Promise<ToolResultSchema<any>
     // but TypeScript definitions might not reflect this
     const block = await (provider as any).getBlock(input.blockHashOrBlockTag, input.includeTransactions);
 
-    return createSuccessResponse({
-      block
-    }, `Block retrieved successfully
+    return createSuccessResponse(
+    `Block retrieved successfully
       Block hash: ${block.hash}
       Block number: ${block.number?.toString() ?? "Not specified"}
       Block timestamp: ${block.timestamp?.toString() ?? "Not specified"}
@@ -567,7 +516,7 @@ export const getBlockHandler = async (input: any): Promise<ToolResultSchema<any>
   }
 };
 
-export const getTransactionHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getTransactionHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.transactionHash) {
       return createErrorResponse("Transaction hash is required");
@@ -576,9 +525,8 @@ export const getTransactionHandler = async (input: any): Promise<ToolResultSchem
     const provider = getProvider();
     const transaction = await provider.getTransaction(input.transactionHash);
 
-    return createSuccessResponse({
-      transaction
-    }, `Transaction retrieved successfully
+    return createSuccessResponse(
+    `Transaction retrieved successfully
       Transaction hash: ${input.transactionHash}
       Transaction: ${transaction}
     `);
@@ -587,7 +535,7 @@ export const getTransactionHandler = async (input: any): Promise<ToolResultSchem
   }
 };
 
-export const getTransactionReceiptHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getTransactionReceiptHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.transactionHash) {
       return createErrorResponse("Transaction hash is required");
@@ -596,9 +544,8 @@ export const getTransactionReceiptHandler = async (input: any): Promise<ToolResu
     const provider = getProvider();
     const receipt = await provider.getTransactionReceipt(input.transactionHash);
 
-    return createSuccessResponse({
-      receipt
-    }, `Transaction receipt retrieved successfully
+    return createSuccessResponse(
+    `Transaction receipt retrieved successfully
       Transaction hash: ${input.transactionHash}
       Transaction receipt: ${receipt}
     `);
@@ -607,7 +554,7 @@ export const getTransactionReceiptHandler = async (input: any): Promise<ToolResu
   }
 };
 
-export const getCodeHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getCodeHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.address) {
       return createErrorResponse("Address is required");
@@ -616,9 +563,8 @@ export const getCodeHandler = async (input: any): Promise<ToolResultSchema<any>>
     const provider = getProvider();
     const code = await provider.getCode(input.address, input.blockTag);
 
-    return createSuccessResponse({
-      code
-    }, `Code retrieved successfully
+    return createSuccessResponse(
+    `Code retrieved successfully
       Address: ${input.address}
       Code: ${code}
     `);
@@ -627,7 +573,7 @@ export const getCodeHandler = async (input: any): Promise<ToolResultSchema<any>>
   }
 };
 
-export const getStorageAtHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getStorageAtHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.address) {
       return createErrorResponse("Address is required");
@@ -640,9 +586,8 @@ export const getStorageAtHandler = async (input: any): Promise<ToolResultSchema<
     const provider = getProvider();
     const storage = await provider.getStorageAt(input.address, input.position, input.blockTag);
 
-    return createSuccessResponse({
-      storage
-    }, `Storage retrieved successfully
+    return createSuccessResponse(
+    `Storage retrieved successfully
       Address: ${input.address}
       Position: ${input.position}
       Storage: ${storage}
@@ -652,7 +597,7 @@ export const getStorageAtHandler = async (input: any): Promise<ToolResultSchema<
   }
 };
 
-export const estimateGasHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const estimateGasHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.transaction) {
       return createErrorResponse("Transaction is required");
@@ -664,9 +609,8 @@ export const estimateGasHandler = async (input: any): Promise<ToolResultSchema<a
     }
     const gasEstimate = await provider.estimateGas(input.transaction);
 
-    return createSuccessResponse({
-      gasEstimate: gasEstimate.toString()
-    }, `Gas estimate retrieved successfully
+    return createSuccessResponse(
+    `Gas estimate retrieved successfully
       Gas estimate: ${gasEstimate.toString()}
     `);
   } catch (error) {
@@ -674,7 +618,7 @@ export const estimateGasHandler = async (input: any): Promise<ToolResultSchema<a
   }
 };
 
-export const getLogsHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getLogsHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.filter) {
       return createErrorResponse("Filter is required");
@@ -686,9 +630,8 @@ export const getLogsHandler = async (input: any): Promise<ToolResultSchema<any>>
     }
     const logs = await provider.getLogs(input.filter);
 
-    return createSuccessResponse({
-      logs
-    }, `Logs retrieved successfully
+    return createSuccessResponse(
+    `Logs retrieved successfully
       Logs: ${logs}
     `);
   } catch (error) {
@@ -696,7 +639,7 @@ export const getLogsHandler = async (input: any): Promise<ToolResultSchema<any>>
   }
 };
 
-export const getEnsResolverHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getEnsResolverHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.name) {
       return createErrorResponse("ENS name is required");
@@ -710,12 +653,8 @@ export const getEnsResolverHandler = async (input: any): Promise<ToolResultSchem
     // but it's available in the implementation
     const resolver = await (provider as any).getResolver(input.name);
 
-    return createSuccessResponse({
-      resolver: resolver ? {
-        address: resolver.address,
-        name: resolver.name
-      } : null
-    }, resolver ? `ENS resolver retrieved successfully
+    return createSuccessResponse(
+    resolver ? `ENS resolver retrieved successfully
       Address: ${resolver.address}
       Name: ${resolver.name}
     ` : "No resolver found for this ENS name");
@@ -724,7 +663,7 @@ export const getEnsResolverHandler = async (input: any): Promise<ToolResultSchem
   }
 };
 
-export const lookupAddressHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const lookupAddressHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.address) {
       return createErrorResponse("Address is required");
@@ -736,9 +675,8 @@ export const lookupAddressHandler = async (input: any): Promise<ToolResultSchema
     }
     const name = await provider.lookupAddress(input.address);
 
-    return createSuccessResponse({
-      name
-    }, name ? `ENS name retrieved successfully
+    return createSuccessResponse(
+    name ? `ENS name retrieved successfully
       Name: ${name}
     ` : "No ENS name found for this address");
   } catch (error) {
@@ -746,7 +684,7 @@ export const lookupAddressHandler = async (input: any): Promise<ToolResultSchema
   }
 };
 
-export const resolveNameHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const resolveNameHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     if (!input.name) {
       return createErrorResponse("ENS name is required");
@@ -758,9 +696,8 @@ export const resolveNameHandler = async (input: any): Promise<ToolResultSchema<a
     }
     const address = await provider.resolveName(input.name);
 
-    return createSuccessResponse({
-      address
-    }, address ? `ENS name resolved successfully
+    return createSuccessResponse(
+    address ? `ENS name resolved successfully
       Name: ${input.name}
       Address: ${address}
     ` : "Could not resolve this ENS name");
@@ -771,7 +708,7 @@ export const resolveNameHandler = async (input: any): Promise<ToolResultSchema<a
 
 // Network Methods
 
-export const getNetworkHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getNetworkHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const provider = getProvider();
     if (!provider) {
@@ -779,13 +716,7 @@ export const getNetworkHandler = async (input: any): Promise<ToolResultSchema<an
     }
     const network = await provider.getNetwork();
 
-    return createSuccessResponse({
-      network: {
-        name: network.name,
-        chainId: network.chainId,
-        ensAddress: network.ensAddress
-      }
-    }, `Network information retrieved successfully
+    return createSuccessResponse(`Network information retrieved successfully
       Network name: ${network.name}
       Chain ID: ${network.chainId}
       ENS address: ${network.ensAddress}
@@ -795,7 +726,7 @@ export const getNetworkHandler = async (input: any): Promise<ToolResultSchema<an
   }
 };
 
-export const getBlockNumberHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getBlockNumberHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const provider = getProvider();
     if (!provider) {
@@ -803,9 +734,8 @@ export const getBlockNumberHandler = async (input: any): Promise<ToolResultSchem
     }
     const blockNumber = await provider.getBlockNumber();
 
-    return createSuccessResponse({
-      blockNumber
-    }, `Block number retrieved successfully
+    return createSuccessResponse(
+    `Block number retrieved successfully
       Block number: ${blockNumber.toString()}
     `);
   } catch (error) {
@@ -813,7 +743,7 @@ export const getBlockNumberHandler = async (input: any): Promise<ToolResultSchem
   }
 };
 
-export const getFeeDataHandler = async (input: any): Promise<ToolResultSchema<any>> => {
+export const getFeeDataHandler = async (input: any): Promise<ToolResultSchema> => {
   try {
     const provider = getProvider();
     if (!provider) {
@@ -823,13 +753,7 @@ export const getFeeDataHandler = async (input: any): Promise<ToolResultSchema<an
     // @ts-ignore - getFeeData might not be in the type definitions depending on the version
     const feeData = await provider.getFeeData();
 
-    return createSuccessResponse({
-      feeData: {
-        gasPrice: feeData.gasPrice?.toString(),
-        maxFeePerGas: feeData.maxFeePerGas?.toString(),
-        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.toString()
-      }
-    }, `Fee data retrieved successfully
+    return createSuccessResponse(`Fee data retrieved successfully
       Gas price: ${feeData.gasPrice?.toString()}
       Max fee per gas: ${feeData.maxFeePerGas?.toString()}
       Max priority fee per gas: ${feeData.maxPriorityFeePerGas?.toString()}

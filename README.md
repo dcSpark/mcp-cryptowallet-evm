@@ -2,6 +2,10 @@
 
 This repository contains a Model Context Protocol (MCP) server that provides Claude with access to Ethereum and EVM-compatible blockchain operations via ethers.js v5. The server enables Claude to perform operations like creating wallets, checking balances, sending transactions, and interacting with smart contracts on EVM-compatible blockchains.
 
+<a href="https://glama.ai/mcp/servers/@dcSpark/mcp-cryptowallet-evm">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@dcSpark/mcp-cryptowallet-evm/badge" alt="Crypto Wallet EVM MCP server" />
+</a>
+
 ## Overview
 
 The MCP server exposes the following tools to Claude:
